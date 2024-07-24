@@ -1,14 +1,23 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ARCore with WebXR</title>
-    <link rel="stylesheet" href="styles.css">
+    <meta charset="utf-8">
+    <title>My AR Experience</title>
+    <!-- Include A-Frame library -->
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <!-- Include AR.js library for A-Frame -->
+    <script src="https://cdn.jsdelivr.net/gh/jeromeetienne/AR.js/aframe/build/aframe-ar.js"></script>
 </head>
 <body>
-    <h1>ARCore with WebXR</h1>
-    <button id="start-ar">Start AR</button>
-    <script src="app.js"></script>
+    <!-- A-Frame Scene for AR -->
+    <a-scene embedded arjs='trackingMethod: best;'>
+        <!-- Marker definition -->
+        <a-marker type="pattern" url="path/to/your-marker.patt">
+            <!-- AR content that appears when marker is detected -->
+            <a-box position="0 0.5 0" material="color: red;"></a-box>
+        </a-marker>
+        <!-- Camera entity to view AR content -->
+        <a-entity camera></a-entity>
+    </a-scene>
 </body>
 </html>

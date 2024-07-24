@@ -6,10 +6,12 @@
         #videoElement {
             opacity: 0;
             transition: opacity 1s ease-in-out; /* Fade-in duration */
+            visibility: hidden; /* Initially hidden */
         }
 
         #videoElement.fade-in {
             opacity: 1;
+            visibility: visible; /* Make the video visible */
         }
     </style>
     <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
@@ -87,8 +89,10 @@
                         clearTimeout(timer);
                     }
                     video.pause(); // Pause video
-                    video.setAttribute('visible', 'false'); // Hide video
                     video.classList.remove('fade-in'); // Remove fade-in class
+                    setTimeout(function() {
+                        video.setAttribute('visible', 'false'); // Hide video after fade-out
+                    }, 1000); // Match this with CSS transition duration
                 });
             }
         });

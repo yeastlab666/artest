@@ -64,7 +64,6 @@
                 var video = document.querySelector('#videoElement'); // The video element
                 var markerVisibleTime = 0.5; // Time in seconds
                 var timer = null; // Timer to handle delay
-                var viewportMargin = 0.2; // Margin from edges to hide video
 
                 // Function to show the video
                 function showVideo() {
@@ -82,12 +81,12 @@
 
                 // Event fired when marker is detected
                 marker.addEventListener('markerFound', function () {
-                    // Clear any existing timer
-                    if (timer) {
-                        clearTimeout(timer);
-                    }
-                    // Set up a timer to delay video playback
-                    timer = setTimeout(showVideo, markerVisibleTime * 1000);
+                    // Start the timer to check full marker visibility
+                    timer = setTimeout(function() {
+                        if (marker.object3D.visible) {
+                            showVideo(); // Show video if marker is still visible
+                        }
+                    }, markerVisibleTime * 1000);
                 });
 
                 // Event fired when marker is lost
@@ -99,30 +98,15 @@
                     hideVideo(); // Immediately hide the video
                 });
 
-                // Function to check if marker is near the edge of the viewport
-                function checkMarkerEdge() {
-                    var markerElement = marker.object3D;
-                    var markerPosition = markerElement.position.clone().project(camera.object3D); // Project marker position onto screen
-
-                    // Get viewport dimensions
-                    var viewportWidth = window.innerWidth;
-                    var viewportHeight = window.innerHeight;
-
-                    // Check if marker is within the viewport margins
-                    if (markerPosition.x < -viewportMargin || markerPosition.x > (1 + viewportMargin) || markerPosition.y < -viewportMargin || markerPosition.y > (1 + viewportMargin)) {
-                        hideVideo(); // Hide video if marker is near the edge
-                    } else if (video.getAttribute('visible') === 'false') {
-                        showVideo(); // Show video if marker comes back into view
-                    }
-                }
-
                 // Monitor marker's position every frame
                 this.el.sceneEl.addEventListener('render-target-loaded', function () {
-                    function update() {
-                        checkMarkerEdge();
-                        requestAnimationFrame(update); // Check marker position again on next frame
+                    function checkMarkerVisibility() {
+                        if (!marker.object3D.visible) {
+                            hideVideo(); // Hide video if marker is not visible
+                        }
+                        requestAnimationFrame(checkMarkerVisibility); // Check visibility again on next frame
                     }
-                    update(); // Start checking marker position
+                    checkMarkerVisibility(); // Start checking marker visibility
                 });
             }
         });

@@ -1,6 +1,17 @@
 <!doctype html>
 <html>
 <head>
+    <style>
+        /* CSS to handle fade-in effect */
+        #videoElement {
+            opacity: 0;
+            transition: opacity 1s ease-in-out; /* Fade-in duration */
+        }
+
+        #videoElement.fade-in {
+            opacity: 1;
+        }
+    </style>
     <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
 </head>
@@ -47,7 +58,7 @@
     </a-scene>
 
     <script>
-        // Register a new A-Frame component to handle video playback based on marker visibility
+        // Register a new A-Frame component to handle video playback and fade-in effect based on marker visibility
         AFRAME.registerComponent('video-handler', {
             init: function () {
                 var marker = this.el; // The marker element
@@ -64,6 +75,7 @@
                     // Set up a timer to delay video playback
                     timer = setTimeout(function () {
                         video.setAttribute('visible', 'true'); // Show video
+                        video.classList.add('fade-in'); // Apply fade-in class
                         video.play(); // Play video
                     }, markerVisibleTime * 1000);
                 });
@@ -76,6 +88,7 @@
                     }
                     video.pause(); // Pause video
                     video.setAttribute('visible', 'false'); // Hide video
+                    video.classList.remove('fade-in'); // Remove fade-in class
                 });
             }
         });

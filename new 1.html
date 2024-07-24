@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>My AR Experience</title>
+    <title>AR Video Experience</title>
     <!-- Include A-Frame library -->
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <!-- Include AR.js library for A-Frame -->
@@ -12,9 +12,11 @@
     <!-- A-Frame Scene for AR -->
     <a-scene embedded arjs='trackingMethod: best;'>
         <!-- Marker definition -->
-        <a-marker type="pattern" url="pattern-marker.ptt">
-            <!-- AR content that appears when marker is detected -->
-            <a-box position="0 0.5 0" material="color: red;"></a-box>
+        <a-marker type="pattern" url="images/pattern-marker.patt">
+            <!-- AR content with video texture -->
+            <a-plane width="1.6" height="0.9" position="0 0.5 0" rotation="-90 0 0">
+                <a-video src="images/bunny.mp4" width="1.6" height="0.9"></a-video>
+            </a-plane>
         </a-marker>
         <!-- Camera entity to view AR content -->
         <a-entity camera></a-entity>

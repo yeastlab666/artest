@@ -12,12 +12,12 @@
     <!-- A-Frame Scene for AR -->
     <a-scene embedded arjs='trackingMethod: best;'>
         <!-- Marker definition -->
-        <a-marker type="pattern" url="https://cdn.jsdelivr.net/gh/jeromeetienne/AR.js/aframe/examples/marker-patt.hiro">
+        <a-marker type="pattern" url="images/pattern-marker.ptt">
             <!-- AR content that appears when marker is detected -->
             <a-box position="0 0.5 0" material="color: red;"></a-box>
         </a-marker>
         <!-- Camera entity to view AR content -->
-        <a-entity camera></a-entity>
+        <a-entity camera position="0 0 5" rotation="0 0 0"></a-entity>
     </a-scene>
 </body>
 </html>

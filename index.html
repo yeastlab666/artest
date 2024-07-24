@@ -1,33 +1,32 @@
 <!doctype html>
 <html>
 <head>
+    <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
     <style>
-        /* CSS to handle fade-in effect */
+        /* CSS to handle fade-in effect (optional) */
         #videoElement {
             opacity: 0;
             transition: opacity 1s ease-in-out; /* Fade-in duration */
-            visibility: hidden; /* Initially hidden */
         }
 
         #videoElement.fade-in {
             opacity: 1;
-            visibility: visible; /* Make the video visible */
         }
     </style>
-    <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
-    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
 </head>
 <body style="margin: 0; overflow: hidden;">
     <a-scene
         vr-mode-ui="enabled: false"
         loading-screen="enabled: false;"
         arjs='sourceType: webcam; debugUIEnabled: false;'
+        id="scene"
         embedded
     >
         <a-assets>
             <video
                 id="vid"
-                src="assets/asset.webm" <!-- Ensure your video file has an alpha channel -->
+                src="assets/asset.mp4"
                 preload="auto"
                 loop
                 crossorigin="anonymous"
@@ -59,12 +58,27 @@
     </a-scene>
 
     <script>
+        // Register a new A-Frame component to handle video playback and visibility
         AFRAME.registerComponent('video-handler', {
             init: function () {
                 var marker = this.el; // The marker element
                 var video = document.querySelector('#videoElement'); // The video element
                 var markerVisibleTime = 0.5; // Time in seconds
                 var timer = null; // Timer to handle delay
+
+                // Function to show the video
+                function showVideo() {
+                    video.setAttribute('visible', 'true'); // Show video
+                    video.classList.add('fade-in'); // Apply fade-in class
+                    video.play(); // Play video
+                }
+
+                // Function to hide the video
+                function hideVideo() {
+                    video.pause(); // Pause video
+                    video.setAttribute('visible', 'false'); // Hide video
+                    video.classList.remove('fade-in'); // Remove fade-in class
+                }
 
                 // Event fired when marker is detected
                 marker.addEventListener('markerFound', function () {
@@ -73,11 +87,7 @@
                         clearTimeout(timer);
                     }
                     // Set up a timer to delay video playback
-                    timer = setTimeout(function () {
-                        video.setAttribute('visible', 'true'); // Show video
-                        video.classList.add('fade-in'); // Apply fade-in class
-                        video.play(); // Play video
-                    }, markerVisibleTime * 1000);
+                    timer = setTimeout(showVideo, markerVisibleTime * 1000);
                 });
 
                 // Event fired when marker is lost
@@ -86,9 +96,24 @@
                     if (timer) {
                         clearTimeout(timer);
                     }
-                    video.pause(); // Pause video
-                    video.classList.remove('fade-in'); // Remove fade-in class
-                    video.setAttribute('visible', 'false'); // Hide video
+                    hideVideo(); // Immediately hide the video
+                });
+
+                // Monitor the marker's visibility every frame
+                this.el.sceneEl.addEventListener('render-target-loaded', function () {
+                    function checkMarkerVisibility() {
+                        if (marker.object3D.visible) {
+                            if (video.getAttribute('visible') === 'false') {
+                                // If the marker is visible and the video is hidden, start the timer
+                                timer = setTimeout(showVideo, markerVisibleTime * 1000);
+                            }
+                        } else {
+                            // If the marker is not visible, hide the video
+                            hideVideo();
+                        }
+                        requestAnimationFrame(checkMarkerVisibility); // Check visibility again on next frame
+                    }
+                    checkMarkerVisibility(); // Start checking marker visibility
                 });
             }
         });

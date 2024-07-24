@@ -1,79 +1,87 @@
 <!doctype html>
 <html>
-    <head>
-        <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
-        <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
-        <script src="https://raw.githack.com/AR-js-org/studio-backend/master/src/modules/marker/tools/gesture-detector.js"></script>
-        <script src="https://raw.githack.com/AR-js-org/studio-backend/master/src/modules/marker/tools/gesture-handler.js"></script>
-        <script>
-            AFRAME.registerComponent('videohandler', {
-                init: function () {
-                    var marker = this.el;
-                    this.vid = document.querySelector("#vid");
+<head>
+    <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+</head>
+<body style="margin: 0; overflow: hidden;">
+    <a-scene
+        vr-mode-ui="enabled: false"
+        loading-screen="enabled: false;"
+        arjs='sourceType: webcam; debugUIEnabled: false;'
+        id="scene"
+        embedded
+    >
+        <a-assets>
+            <video
+                id="vid"
+                src="assets/asset.mp4"
+                preload="auto"
+                loop
+                crossorigin="anonymous"
+                webkit-playsinline
+                muted
+                playsinline
+            ></video>
+        </a-assets>
 
-                    marker.addEventListener('markerFound', function () {
-                        this.toggle = true;
-                        this.vid.play();
-                    }.bind(this));
-
-                    marker.addEventListener('markerLost', function () {
-                        this.toggle = false;
-                        this.vid.pause();
-                    }.bind(this));
-                },
-            });
-        </script>
-    </head>
-
-    <body style="margin: 0; overflow: hidden;">
-        <a-scene
-            vr-mode-ui="enabled: false"
-            loading-screen="enabled: false;"
-            arjs='sourceType: webcam; debugUIEnabled: false;'
-            id="scene"
-            embedded
-            gesture-detector
+        <!-- Marker definition -->
+        <a-marker
+            type="pattern"
+            url="assets/marker.patt"
+            id="markerA"
+            video-handler
         >
-            <a-assets>
-                <video
-                    id="vid"
-                    src="assets/asset.mp4"
-                    preload="auto"
-                    response-type="arraybuffer"
-                    loop
-                    crossorigin
-                    webkit-playsinline
-                    autoplay
-                    muted
-                    playsinline
-                ></video>
-            </a-assets>
+            <!-- Video element -->
+            <a-video
+                id="videoElement"
+                src="#vid"
+                scale="1 1 1"
+                position="0 0.1 0"
+                rotation="-90 0 0"
+                visible="false" <!-- Initially hidden -->
+            ></a-video>
+        </a-marker>
 
-            <a-marker
-                type="pattern"
-                preset="custom"
-                url="assets/marker.patt"
-                videohandler
-                smooth="false"
-                smoothCount="10"
-                smoothTolerance="0.01"
-                smoothThreshold="5"
-                raycaster="objects: .clickable"
-                emitevents="true"
-                cursor="fuse: false; rayOrigin: mouse;"
-                id="markerA"
-            >
-                <a-video
-                    src="#vid"
-                    scale="1 1 1"
-                    position="0 0.1 0"
-                    rotation="-90 0 0"
-                    class="clickable"
-                    gesture-handler
-                ></a-video>
-            </a-marker>
+        <a-entity camera></a-entity>
+    </a-scene>
 
-            <a-entity camera></a-entity>
-        </a-scene>
-    </body>
+    <script>
+        // Register a new A-Frame component to handle video playback based on marker visibility
+        AFRAME.registerComponent('video-handler', {
+            init: function () {
+                var marker = this.el; // The marker element
+                var video = document.querySelector('#videoElement'); // The video element
+                var markerVisibleTime = 0.5; // Time in seconds
+                var timer = null; // Timer to handle delay
+
+                // Event fired when marker is detected
+                marker.addEventListener('markerFound', function () {
+                    // Clear any existing timer
+                    if (timer) {
+                        clearTimeout(timer);
+                    }
+                    // Set up a timer to delay video playback
+                    timer = setTimeout(function () {
+                        video.setAttribute('visible', 'true'); // Show video
+                        video.play(); // Play video
+                    }, markerVisibleTime * 1000);
+                });
+
+                // Event fired when marker is lost
+                marker.addEventListener('markerLost', function () {
+                    // Clear any existing timer
+                    if (timer) {
+                        clearTimeout(timer);
+                    }
+                    video.pause(); // Pause video
+                    video.setAttribute('visible', 'false'); // Hide video
+                });
+            }
+        });
+
+        // Attach the 'video-handler' component to the marker element
+        document.querySelector('#markerA').setAttribute('video-handler', '');
+    </script>
+</body>
 </html>
